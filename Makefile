@@ -7,7 +7,7 @@ migrate-new:
 	migrate create -ext sql -dir migrations "$(name)"
 
 migrate-up:
-	migrate -database "sqlite3://bot.db?_auth_user=root&_auth_pass=secret&&query" -path migrations up
+	migrate -database "sqlite3://bot.db" -path migrations up
 
 migrate-down:
-	migrate -database "sqlite3://bot.db?_auth_user=root&_auth_pass=secret&&query" -path migrations down 1
+	migrate -database "sqlite3://bot.db?" -path migrations down 1
