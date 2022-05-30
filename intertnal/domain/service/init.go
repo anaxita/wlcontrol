@@ -9,11 +9,11 @@ import (
 
 type Core struct {
 	bot    *tg.BotAPI
-	repo   dal.Repository
-	device mikrotik.Device
+	repo   *dal.Repository
+	device *mikrotik.Device
 }
 
-func NewCore(botToken string, isDebug bool, repo dal.Repository, device mikrotik.Device) (Core, error) {
+func NewCore(botToken string, isDebug bool, repo *dal.Repository, device *mikrotik.Device) (Core, error) {
 	bot, err := tg.NewBotAPI(botToken)
 	if err != nil {
 		return Core{}, err

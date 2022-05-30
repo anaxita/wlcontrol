@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"wlcontrol/intertnal/bootstrap"
 	"wlcontrol/intertnal/domain/service"
@@ -14,8 +15,12 @@ func main() {
 		log.Fatal("config: ", err)
 	}
 
-	repo := dal.NewRepository()
-	device := mikrotik.NewDevice()
+	repo, err := dal.NewRepository(c.DBName)
+	if err != nil {
+		log.Fatal("repository: ", err)
+	}
+
+	device := mikrotik.New()
 
 	core, err := service.NewCore(c.BotToken, c.BotDebug, repo, device)
 	if err != nil {

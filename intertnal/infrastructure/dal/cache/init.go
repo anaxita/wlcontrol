@@ -19,7 +19,7 @@ func New() Cache {
 	}
 }
 
-func (c *Cache) ChatUser(chatID, userID int64) (entity.User, error) {
+func (c *Cache) ChatUserState(chatID, userID int64) (entity.User, error) {
 	c.m.RLock()
 	defer c.m.RUnlock()
 
@@ -36,7 +36,7 @@ func (c *Cache) ChatUser(chatID, userID int64) (entity.User, error) {
 	return u, nil
 }
 
-func (c *Cache) AddChatUser(chatID int64, u entity.User) {
+func (c *Cache) AddChatUserState(chatID int64, u entity.User) {
 	c.m.Lock()
 	defer c.m.Unlock()
 
@@ -48,7 +48,7 @@ func (c *Cache) AddChatUser(chatID int64, u entity.User) {
 	c.users[chatID][u.ID] = u
 }
 
-func (c *Cache) DeleteChatUser(chatID, userID int64) {
+func (c *Cache) DeleteChatUserState(chatID, userID int64) {
 	c.m.Lock()
 	defer c.m.Unlock()
 

@@ -9,9 +9,9 @@ const (
 	btnAddRouter   = "add router"
 	btnShowRouters = "show routers"
 
-	btnChats      = "chats"
-	btnEditChatWL = "set wl"
-	btnRestChatWL = "reset wl"
+	btnChats          = "chats"
+	btnEditChatWL     = "set wl"
+	btnSetChatDevices = "set chat devices"
 )
 
 const (
@@ -21,9 +21,9 @@ const (
 	textBtnAddRouter   = "Добавить микротик"
 	textBtnShowRouters = "Показать все"
 
-	textBtnChats       = "Чаты"
-	textBtnEditChatWL  = "Изменить WL"
-	textBtnResetChatWL = "Сбросить WL"
+	textBtnChats          = "Чаты"
+	textBtnEditChatWL     = "Изменить WL"
+	textBtnSetChatDevices = "Задать микротики"
 )
 
 var kbStart = tg.NewInlineKeyboardMarkup(
@@ -38,7 +38,7 @@ var kbStart = tg.NewInlineKeyboardMarkup(
 var kbChats = tg.NewInlineKeyboardMarkup(
 	tg.NewInlineKeyboardRow(
 		tg.NewInlineKeyboardButtonData(textBtnEditChatWL, btnEditChatWL),
-		tg.NewInlineKeyboardButtonData(textBtnResetChatWL, btnRestChatWL),
+		tg.NewInlineKeyboardButtonData(textBtnSetChatDevices, textBtnSetChatDevices),
 	),
 
 	tg.NewInlineKeyboardRow(
@@ -60,5 +60,14 @@ var kbRouters = tg.NewInlineKeyboardMarkup(
 var kbAddRouter = tg.NewInlineKeyboardMarkup(
 	tg.NewInlineKeyboardRow(
 		tg.NewInlineKeyboardButtonData(textBtnBack, btnRouters),
+	),
+)
+
+var kbChatsSetDevice = tg.NewInlineKeyboardMarkup(
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData(textBtnSetChatDevices, textBtnSetChatDevices),
+	),
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData(textBtnBack, btnChats),
 	),
 )

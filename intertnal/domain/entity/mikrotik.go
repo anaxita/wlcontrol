@@ -5,21 +5,20 @@ import (
 )
 
 type Mikrotik struct {
-	ID       int64
-	Name     string
-	Address  string
-	Login    string
-	Password string
-
-	ChatID ChatID
-	WL     string
+	ID       int64  `db:"id"`
+	ChatID   int64  `db:"chat_id"`
+	Name     string `db:"name"`
+	Address  string `db:"address"`
+	Login    string `db:"login"`
+	Password string `db:"password"`
+	WL       string `db:"wl"`
 }
 
 type MikrotikCreate struct {
-	Name     string
-	Address  string
-	Login    string
-	Password string
+	Name     string `db:"name"`
+	Address  string `db:"address"`
+	Login    string `db:"login"`
+	Password string `db:"password"`
 }
 
 func (m MikrotikCreate) Validate() error {
@@ -27,20 +26,20 @@ func (m MikrotikCreate) Validate() error {
 
 	switch {
 	case len(m.Name) == 0:
-		errText += " Name is empty,"
+		errText += "Name is empty, "
 		fallthrough
 	case len(m.Address) == 0:
-		errText += " Address is empty,"
+		errText += "Address is empty, "
 		fallthrough
 	case len(m.Login) == 0:
-		errText += " Login is empty,"
+		errText += "Login is empty, "
 		fallthrough
 	case len(m.Password) == 0:
-		errText += " Password is empty,"
+		errText += "Password is empty, "
 	}
 
 	if len(errText) != 0 {
-		errText = errText[:len(errText)-2] // trim last sign
+		errText = errText[:len(errText)-2] // trim 2 last signs
 		return errors.New(errText)
 	}
 

@@ -11,6 +11,7 @@ type Config struct {
 	HTTPPort string
 	BotToken string
 	BotDebug bool
+	DBName   string
 }
 
 func NewConfig() (Config, error) {
@@ -27,6 +28,7 @@ func NewConfig() (Config, error) {
 	}
 
 	c.HTTPPort = os.Getenv("HTTP_PORT")
+	c.DBName = os.Getenv("DB_NAME")
 	c.BotToken = os.Getenv("BOT_TOKEN")
 	c.BotDebug = isDebug
 

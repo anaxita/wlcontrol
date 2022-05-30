@@ -2,13 +2,18 @@ package entity
 
 type User struct {
 	ID        int64
+	ChatID    int64
 	MessageID int
-	State     UserState
+
+	MikrotikID int64
+	State      UserState
 }
 
 type UserState uint8
 
 const (
-	UserStateDefault = iota
-	UserStateAddRouter
+	UserStateAddRouter UserState = iota + 1
+	UserStateEnterChatID
+	UserStateEditChatSettings
+	UserStateSetDeviceToChat
 )
