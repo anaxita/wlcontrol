@@ -22,7 +22,7 @@ func main() {
 
 	device := mikrotik.New()
 
-	core, err := service.NewCore(c.BotToken, c.BotDebug, repo, device)
+	core, err := service.New(c.BotToken, c.BotDebug, repo, device)
 	if err != nil {
 		log.Fatal("core: ", err)
 	}

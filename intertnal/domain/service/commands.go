@@ -6,7 +6,7 @@ const (
 	cmdStart = "start"
 )
 
-func (c *Core) cmdStart(m *tg.Message) error {
+func (c *App) cmdStart(m *tg.Message) error {
 	msg := tg.NewMessage(m.Chat.ID, "Выберите раздел:")
 	msg.ReplyMarkup = &kbStart
 

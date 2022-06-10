@@ -46,6 +46,7 @@ func (r *Repository) AddChatUserState(chatID int64, u entity.User) {
 func (r *Repository) DeleteChatUserState(chatID, userID int64) {
 	r.cache.DeleteChatUserState(chatID, userID)
 }
+
 func (r *Repository) AddRouter(router entity.MikrotikCreate) error {
 	_, err := r.db.NewSession(nil).
 		InsertInto("devices").
@@ -75,4 +76,57 @@ func (r *Repository) ChatByID(id int64) (entity.Chat, error) {
 	}
 
 	return entity.Chat{ID: devices[0].ChatID, Devices: devices}, nil
+}
+
+func (r *Repository) AddDevicesToChat(devices ...entity.Mikrotik) error {
+	stmt, err := r.db.NewSession(nil).Prepare("INSERT INTO devices_chats_wl (chat_id, device_id, wl) VALUES (?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, v := range devices {
+		_, err = stmt.Exec(v.ChatID, v.ID, v.WL)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Repository) RemoveDeviceFromChat(devices ...entity.Mikrotik) error {
+	stmt, err := r.db.NewSession(nil).Prepare("DELETE FROM devices_chats_wl WHERE chat_id = ? AND device_id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, v := range devices {
+		_, err = stmt.Exec(v.ChatID, v.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Repository) DeviceByID(id int64) (device entity.Mikrotik, err error) {
+	err = r.db.NewSession(nil).
+		Select("id, name, address, login, password").
+		From("devices").
+		Where("id = ?", id).
+		LoadOne(&device)
+
+	return
+}
+
+func (r *Repository) Devices() (devices []entity.Mikrotik, err error) {
+	_, err = r.db.NewSession(nil).
+		Select("id, name, address, login, password").
+		From("devices").
+		Load(&devices)
+
+	return
 }

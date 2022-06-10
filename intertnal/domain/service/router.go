@@ -6,7 +6,7 @@ import (
 	"wlcontrol/intertnal/domain/entity"
 )
 
-func (c *Core) handleCommand(m *tg.Message) {
+func (c *App) handleCommand(m *tg.Message) {
 	if m.From.IsBot {
 		return
 	}
@@ -23,7 +23,7 @@ func (c *Core) handleCommand(m *tg.Message) {
 	}
 }
 
-func (c *Core) handleMessage(m *tg.Message) {
+func (c *App) handleMessage(m *tg.Message) {
 	if m.From.IsBot {
 		return
 	}
@@ -42,28 +42,21 @@ func (c *Core) handleMessage(m *tg.Message) {
 	}
 }
 
-func (c *Core) handeStateMessage(m *tg.Message, u entity.User) (err error) {
+func (c *App) handeStateMessage(m *tg.Message, u entity.User) (err error) {
 	switch u.State {
 	case entity.UserStateAddRouter:
 		err = c.msgAddRouter(m)
-	case entity.UserStateSetDeviceToChat:
-		err = c.msgSetDeviceToChat(m)
 	case entity.UserStateEnterChatID:
 		err = c.msgShowChatSettings(m)
 	}
 
-	if err != nil {
-		return err
-	}
-
-	c.repo.DeleteChatUserState(m.Chat.ID, m.From.ID)
-	return nil
+	return err
 }
-func (c *Core) handeDefaultMessage(m *tg.Message) error {
+func (c *App) handeDefaultMessage(m *tg.Message) error {
 	return nil
 }
 
-func (c *Core) handleCallback(cb *tg.CallbackQuery) {
+func (c *App) handleCallback(cb *tg.CallbackQuery) {
 	_, err := c.bot.Request(tg.NewCallback(cb.ID, ""))
 	if err != nil {
 		log.Println("[CALLBACK REQUEST] ", err)
@@ -77,6 +70,8 @@ func (c *Core) handleCallback(cb *tg.CallbackQuery) {
 	switch cb.Data {
 	case btnChats:
 		err = c.cbChats(cb)
+	case btnChat:
+		err = c.cbChat(cb)
 	case btnStart:
 		err = c.cbStart(cb)
 	case btnRouters:
@@ -84,7 +79,27 @@ func (c *Core) handleCallback(cb *tg.CallbackQuery) {
 	case btnAddRouter:
 		err = c.cbAddRouter(cb)
 	case btnEditChatWL:
-		err = c.cbEditChatWL(cb)
+		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		if err != nil {
+			break
+		}
+
+		err = c.cbEditChatWL(cb, u.ChatID)
+	case btnSetChatDevices:
+		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		if err != nil {
+			break
+		}
+
+		err = c.cbEditChatDevices(cb.Message, u)
+	default:
+		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		if err != nil {
+			break
+		}
+
+		cb.Message.Text = cb.Data
+		err = c.msgSetDeviceToChat(cb.Message, u)
 	}
 
 	if err != nil {

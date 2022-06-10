@@ -7,27 +7,27 @@ import (
 	"wlcontrol/intertnal/infrastructure/mikrotik"
 )
 
-type Core struct {
+type App struct {
 	bot    *tg.BotAPI
 	repo   *dal.Repository
 	device *mikrotik.Device
 }
 
-func NewCore(botToken string, isDebug bool, repo *dal.Repository, device *mikrotik.Device) (Core, error) {
+func New(botToken string, isDebug bool, repo *dal.Repository, device *mikrotik.Device) (App, error) {
 	bot, err := tg.NewBotAPI(botToken)
 	if err != nil {
-		return Core{}, err
+		return App{}, err
 	}
 	bot.Debug = isDebug
 
-	return Core{
+	return App{
 		bot:    bot,
 		repo:   repo,
 		device: device,
 	}, nil
 }
 
-func (c *Core) Run() {
+func (c *App) Run() {
 	defer c.bot.StopReceivingUpdates()
 
 	u := tg.NewUpdate(0)
@@ -39,7 +39,7 @@ func (c *Core) Run() {
 	}
 }
 
-func (c *Core) handle(u tg.Update) {
+func (c *App) handle(u tg.Update) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println("[PANIC] ", err)

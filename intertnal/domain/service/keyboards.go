@@ -10,8 +10,10 @@ const (
 	btnShowRouters = "show routers"
 
 	btnChats          = "chats"
+	btnChat           = "chat"
 	btnEditChatWL     = "set wl"
 	btnSetChatDevices = "set chat devices"
+	btnChangeDeviceWL = "changeChatDevice"
 )
 
 const (
@@ -38,7 +40,7 @@ var kbStart = tg.NewInlineKeyboardMarkup(
 var kbChats = tg.NewInlineKeyboardMarkup(
 	tg.NewInlineKeyboardRow(
 		tg.NewInlineKeyboardButtonData(textBtnEditChatWL, btnEditChatWL),
-		tg.NewInlineKeyboardButtonData(textBtnSetChatDevices, textBtnSetChatDevices),
+		tg.NewInlineKeyboardButtonData(textBtnSetChatDevices, btnSetChatDevices),
 	),
 
 	tg.NewInlineKeyboardRow(
@@ -60,14 +62,5 @@ var kbRouters = tg.NewInlineKeyboardMarkup(
 var kbAddRouter = tg.NewInlineKeyboardMarkup(
 	tg.NewInlineKeyboardRow(
 		tg.NewInlineKeyboardButtonData(textBtnBack, btnRouters),
-	),
-)
-
-var kbChatsSetDevice = tg.NewInlineKeyboardMarkup(
-	tg.NewInlineKeyboardRow(
-		tg.NewInlineKeyboardButtonData(textBtnSetChatDevices, textBtnSetChatDevices),
-	),
-	tg.NewInlineKeyboardRow(
-		tg.NewInlineKeyboardButtonData(textBtnBack, btnChats),
 	),
 )

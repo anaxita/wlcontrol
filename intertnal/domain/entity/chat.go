@@ -14,3 +14,13 @@ func (c Chat) Info() string {
 	}
 	return "Этот чат имеет следующие настройки (Mikrotik -> WL):\n" + text
 }
+
+func (c Chat) IsDeviceFound(deviceID int64) (Mikrotik, bool) {
+	for _, v := range c.Devices {
+		if v.ID == deviceID {
+			return v, true
+		}
+	}
+
+	return Mikrotik{}, false
+}

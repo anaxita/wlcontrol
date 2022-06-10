@@ -8,8 +8,8 @@ CREATE TABLE devices (
 );
 
 CREATE TABLE devices_chats_wl (
-chat_id INTEGER PRIMARY KEY ,
-device_id INTEGER,
-wl TEXT NOT NULL ,
-UNIQUE (device_id, chat_id, wl)
+	chat_id INTEGER NOT NULL,
+	device_id INTEGER REFERENCES devices(id) NOT NULL ,
+	wl TEXT NOT NULL ,
+	UNIQUE (device_id, chat_id, wl)
 )
