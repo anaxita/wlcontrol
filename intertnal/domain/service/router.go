@@ -1,8 +1,12 @@
 package service
 
 import (
+	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"strconv"
+	"strings"
+	"wlcontrol/intertnal/domain"
 	"wlcontrol/intertnal/domain/entity"
 )
 
@@ -71,7 +75,12 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 	case btnChats:
 		err = c.cbChats(cb)
 	case btnChat:
-		err = c.cbChat(cb)
+		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		if err != nil {
+			break
+		}
+
+		err = c.cbChat(cb, u)
 	case btnStart:
 		err = c.cbStart(cb)
 	case btnRouters:
@@ -84,7 +93,7 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 			break
 		}
 
-		err = c.cbEditChatWL(cb, u.ChatID)
+		err = c.cbEditChatWL(cb, u)
 	case btnSetChatDevices:
 		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
 		if err != nil {
@@ -98,11 +107,35 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 			break
 		}
 
-		cb.Message.Text = cb.Data
-		err = c.msgSetDeviceToChat(cb.Message, u)
+		err = c.multiCallback(cb, u)
 	}
 
 	if err != nil {
 		log.Println("handleCallback: ", err)
 	}
+}
+
+func (c *App) multiCallback(cb *tg.CallbackQuery, u entity.User) (err error) {
+	m := cb.Message
+
+	s := strings.Split(m.Text, "_")
+	if len(s) != 2 {
+		return fmt.Errorf("%w: undefined device id in string '%s'", domain.ErrBadRequest, s)
+	}
+
+	id, err := strconv.ParseInt(s[1], 10, 64)
+	if err != nil {
+		return fmt.Errorf("%w: device id must be a string, got: '%s'", domain.ErrBadRequest, s[1])
+	}
+
+	u.MikrotikID = id
+
+	switch s[0] {
+	case btnChangeDeviceWL:
+		err = c.cbEditChatWL(cb, u)
+	case btnSetChatDevice:
+		err = c.msgSetDeviceToChat(cb.Message, u)
+	}
+
+	return err
 }

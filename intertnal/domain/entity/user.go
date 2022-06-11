@@ -16,4 +16,5 @@ const (
 	UserStateEnterChatID
 	UserStateEditChatSettings
 	UserStateSetDeviceToChat
+	UserStateSetNewWL
 )

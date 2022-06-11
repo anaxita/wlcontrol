@@ -5,7 +5,6 @@ import (
 	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
-	"strings"
 	"wlcontrol/intertnal/domain"
 	"wlcontrol/intertnal/domain/entity"
 )
@@ -30,29 +29,20 @@ func (c *App) msgAddRouter(m *tg.Message) error {
 }
 
 func (c *App) msgSetDeviceToChat(m *tg.Message, u entity.User) error {
-	s := strings.Split(m.Text, "_")
-	if len(s) != 2 {
-		return fmt.Errorf("%w: undefined device id in string '%s'", domain.ErrBadRequest, s)
-	}
-
-	id, err := strconv.ParseInt(s[1], 10, 64)
-	if err != nil {
-		return fmt.Errorf("%w: device id must be a string, got: '%s'", domain.ErrBadRequest, s[1])
-	}
-
-	device, err := c.repo.DeviceByID(id)
+	device, err := c.repo.DeviceByID(u.MikrotikID)
 	if err != nil {
 		return err
 	}
 
 	device.ChatID = u.EditedChatID
+	device.WL = "wl"
 
 	chat, err := c.repo.ChatByID(u.EditedChatID)
 	if err != nil {
 		return err
 	}
 
-	if _, ok := chat.IsDeviceFound(id); ok {
+	if _, ok := chat.IsDeviceFound(u.MikrotikID); ok {
 		err = c.repo.RemoveDeviceFromChat(device)
 	} else {
 		err = c.repo.AddDevicesToChat(device)

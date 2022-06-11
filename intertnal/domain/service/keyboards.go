@@ -12,7 +12,8 @@ const (
 	btnChats          = "chats"
 	btnChat           = "chat"
 	btnEditChatWL     = "set wl"
-	btnSetChatDevices = "set chat devices"
+	btnSetChatDevices = "setChatDevices"
+	btnSetChatDevice  = "setChatDevice"
 	btnChangeDeviceWL = "changeChatDevice"
 )
 
