@@ -71,11 +71,13 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 		return
 	}
 
+	var u entity.User
+
 	switch cb.Data {
 	case btnChats:
 		err = c.cbChats(cb)
 	case btnChat:
-		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		u, err = c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
 		if err != nil {
 			break
 		}
@@ -95,14 +97,14 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 
 		err = c.cbEditChatWL(cb, u)
 	case btnSetChatDevices:
-		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		u, err = c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
 		if err != nil {
 			break
 		}
 
 		err = c.cbEditChatDevices(cb.Message, u)
 	default:
-		u, err := c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
+		u, err = c.repo.ChatUserState(cb.Message.Chat.ID, cb.From.ID)
 		if err != nil {
 			break
 		}
@@ -118,7 +120,7 @@ func (c *App) handleCallback(cb *tg.CallbackQuery) {
 func (c *App) multiCallback(cb *tg.CallbackQuery, u entity.User) (err error) {
 	m := cb.Message
 
-	s := strings.Split(m.Text, "_")
+	s := strings.Split(cb.Data, "_")
 	if len(s) != 2 {
 		return fmt.Errorf("%w: undefined device id in string '%s'", domain.ErrBadRequest, s)
 	}
@@ -134,7 +136,7 @@ func (c *App) multiCallback(cb *tg.CallbackQuery, u entity.User) (err error) {
 	case btnChangeDeviceWL:
 		err = c.cbEditChatWL(cb, u)
 	case btnSetChatDevice:
-		err = c.msgSetDeviceToChat(cb.Message, u)
+		err = c.msgSetDeviceToChat(m, u)
 	}
 
 	return err

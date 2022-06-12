@@ -123,8 +123,29 @@ func (c *App) cbEditChatWL(cb *tg.CallbackQuery, u entity.User) error {
 
 func (c *App) cbEditChatDevices(m *tg.Message, u entity.User) error {
 	chat, err := c.repo.ChatByID(u.EditedChatID)
-	if err != nil {
-		return err
+	switch {
+	case err == nil:
+	case !errors.Is(err, domain.ErrNotFound):
+		return fmt.Errorf("не смогли найти такой чат: %w", err)
+	default:
+		devices := []entity.Mikrotik{
+			{
+				ID:     1,
+				ChatID: u.EditedChatID,
+				WL:     "wl",
+			},
+			{
+				ID:     2,
+				ChatID: u.EditedChatID,
+				WL:     "wl",
+			},
+		}
+		err = c.repo.AddDevicesToChat(devices...)
+		if err != nil {
+			return err
+		}
+
+		chat.Devices = devices
 	}
 
 	devices, err := c.repo.Devices()
@@ -134,13 +155,10 @@ func (c *App) cbEditChatDevices(m *tg.Message, u entity.User) error {
 
 	var rows [][]tg.InlineKeyboardButton
 	for _, v := range devices {
-		var text string
+		text := v.Name
 
-		if d, ok := chat.IsDeviceFound(v.ID); ok {
-			text = fmt.Sprintf("✔ %s (%s)", d.Name, d.WL)
-			v = d
-		} else {
-			text = fmt.Sprintf("%s (wl)", v.Name)
+		if _, ok := chat.IsDeviceFound(v.ID); ok {
+			text = "✔ " + text
 		}
 
 		btn := tg.NewInlineKeyboardButtonData(text, fmt.Sprintf("%s_%d", btnSetChatDevice, v.ID))
@@ -195,19 +213,4 @@ func (c *App) cbEditChatDeviceWL(m *tg.Message, u entity.User) error {
 	}
 
 	return c.cbEditChatDevices(m, u)
-}
-
-func (c *App) msgEditChatDeviceWL(m *tg.Message, u entity.User) error {
-	_, err := c.bot.Send(tg.NewMessage(m.Chat.ID, "Введите название WL"))
-	if err != nil {
-		return err
-	}
-
-	// update cache
-	u.MessageID = m.MessageID
-	u.State = entity.UserStateSetNewWL
-
-	c.repo.AddChatUserState(m.Chat.ID, u)
-
-	return nil
 }

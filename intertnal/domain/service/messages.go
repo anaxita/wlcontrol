@@ -112,3 +112,18 @@ func (c *App) msgShowChatSettings(m *tg.Message) error {
 
 	return err
 }
+
+func (c *App) msgEditChatDeviceWL(m *tg.Message, u entity.User) error {
+	_, err := c.bot.Send(tg.NewMessage(m.Chat.ID, "Введите название WL"))
+	if err != nil {
+		return err
+	}
+
+	// update cache
+	u.MessageID = m.MessageID
+	u.State = entity.UserStateSetNewWL
+
+	c.repo.AddChatUserState(m.Chat.ID, u)
+
+	return nil
+}
