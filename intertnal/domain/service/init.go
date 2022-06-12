@@ -50,8 +50,8 @@ func (c *App) handle(u tg.Update) {
 	case u.CallbackQuery != nil:
 		c.handleCallback(u.CallbackQuery)
 	case u.Message == nil || u.Message.From.IsBot: // ignoring empty messages and messages from bots
-	// case u.Message.Chat.IsPrivate(): TODO: uncomment before push
-	// 	_, _ = c.bot.Send(tg.NewMessage(u.Message.Chat.ID, textPrivateStart))  TODO: uncomment before push
+	// case u.Message.Chat.IsPrivate(): TODO: uncomment before release
+	// 	_, _ = c.bot.Send(tg.NewMessage(u.Message.Chat.ID, textPrivateStart))  TODO: uncomment before release
 	case u.Message.IsCommand():
 		c.handleCommand(u.Message)
 	default:
