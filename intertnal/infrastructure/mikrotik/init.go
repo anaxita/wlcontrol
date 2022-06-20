@@ -1,6 +1,8 @@
 package mikrotik
 
-import "wlcontrol/intertnal/domain/entity"
+import (
+	"wlcontrol/intertnal/entity"
+)
 
 type Device struct {
 }

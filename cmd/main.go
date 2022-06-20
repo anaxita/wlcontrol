@@ -4,7 +4,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"wlcontrol/intertnal/bootstrap"
-	"wlcontrol/intertnal/domain/service"
+	"wlcontrol/intertnal/domain"
 	"wlcontrol/intertnal/infrastructure/dal"
 	"wlcontrol/intertnal/infrastructure/mikrotik"
 )
@@ -22,7 +22,7 @@ func main() {
 
 	device := mikrotik.New()
 
-	core, err := service.New(c.BotToken, c.BotDebug, repo, device)
+	core, err := domain.New(c.BotToken, c.BotDebug, repo, device)
 	if err != nil {
 		log.Fatal("core: ", err)
 	}

@@ -7,7 +7,7 @@ type Chat struct {
 	Devices []Mikrotik
 }
 
-func (c Chat) Info() string {
+func (c Chat) DeviceInfo() string {
 	var text string
 	for i, v := range c.Devices {
 		text += fmt.Sprintf("\n%d. %s --> %s", i+1, v.Name, v.WL)

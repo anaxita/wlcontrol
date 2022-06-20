@@ -5,7 +5,7 @@ import (
 	"github.com/gocraft/dbr"
 	"time"
 	"wlcontrol/intertnal/domain"
-	"wlcontrol/intertnal/domain/entity"
+	"wlcontrol/intertnal/entity"
 	"wlcontrol/intertnal/infrastructure/dal/cache"
 )
 
@@ -36,15 +36,15 @@ func NewRepository(dbName string) (*Repository, error) {
 }
 
 func (r *Repository) ChatUserState(chatID, userID int64) (entity.User, error) {
-	return r.cache.ChatUserState(chatID, userID)
+	return r.cache.User(chatID, userID)
 }
 
 func (r *Repository) AddChatUserState(chatID int64, u entity.User) {
-	r.cache.AddChatUserState(chatID, u)
+	r.cache.AddUser(chatID, u)
 }
 
 func (r *Repository) DeleteChatUserState(chatID, userID int64) {
-	r.cache.DeleteChatUserState(chatID, userID)
+	r.cache.DeleteUser(chatID, userID)
 }
 
 func (r *Repository) AddRouter(router entity.MikrotikCreate) error {
