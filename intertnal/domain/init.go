@@ -13,6 +13,7 @@ type Repository interface {
 	DeleteChatUserState(chatID, userID int64)
 	AddRouter(router entity.MikrotikCreate) error
 	ChatByID(id int64) (entity.Chat, error)
+	ChatDevices(id int64) ([]entity.Mikrotik, error)
 	AddDevicesToChat(devices ...entity.Mikrotik) error
 	RemoveDeviceFromChat(devices ...entity.Mikrotik) error
 	DeviceByID(id int64) (device entity.Mikrotik, err error)

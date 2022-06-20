@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ const (
 const (
 	CallbackStart         = "start"
 	CallbackChats         = "chats"
+	CallbackChat          = "chat"
 	CallbackDevices       = "devices"
 	CallbackAddChatDevice = "addChatDevice"
 	CallbackChatDevices   = "chatDevices"
@@ -36,13 +38,14 @@ func (a *App) handleCallbacks(cb *tg.CallbackQuery) (err error) {
 }
 
 func (a *App) handleSingleCallbackData(cb *tg.CallbackQuery) (err error) {
-
 	switch cb.Data {
 	case CallbackChats:
 		err = a.handleCallbackChats(cb)
+	case CallbackChat:
+		err = a.handleChat(cb)
 	case CallbackDevices:
 	case CallbackChatDevices:
-		err = a.handleCallbackChatDevices(cb.Message)
+		err = a.handleCallbackChatDevices(cb)
 	case CallbackStart:
 		err = a.cmdStart(cb.Message)
 	}
@@ -60,7 +63,7 @@ func (a *App) handleMultiCallbackData(cb *tg.CallbackQuery, data, id string) (er
 }
 
 func (a *App) handleCallbackChats(cb *tg.CallbackQuery) (err error) {
-	msg := tg.NewMessage(cb.Message.Chat.ID, "Укажите ID чата. Его можно узнать отправив команду `/chatid` в нужном вам чате.")
+	msg := tg.NewMessage(cb.Message.Chat.ID, "Введите ID чата. Его можно узнать отправив команду `/chatid` в нужном чате.")
 
 	newMsg, err := a.bot.Send(msg)
 	if err != nil {
@@ -78,7 +81,47 @@ func (a *App) handleCallbackChats(cb *tg.CallbackQuery) (err error) {
 	return
 }
 
-func (a *App) handleCallbackChatDevices(m *tg.Message) (err error) {
+func (a *App) handleCallbackChatDevices(cb *tg.CallbackQuery) error {
+	m := cb.Message
 
-	return
+	u, err := a.repo.ChatUserState(m.Chat.ID, cb.From.ID)
+	if err != nil {
+		return fmt.Errorf("user state: %s", err)
+	}
+
+	_, err = a.repo.ChatByID(u.EditedChatID)
+	if err != nil {
+		return fmt.Errorf("chat by id: %s", err)
+
+	}
+
+	devices, err := a.repo.ChatDevices(u.EditedChatID)
+	if err != nil {
+		return fmt.Errorf("chat devices: %s", err)
+
+	}
+
+	btnRows := make([][]tg.InlineKeyboardButton, 0, len(devices)+1)
+
+	for _, v := range devices {
+		btnData := fmt.Sprintf("%s_%d", CallbackAddChatDevice, v.ID)
+		btnRows = append(btnRows, tg.NewInlineKeyboardRow(tg.NewInlineKeyboardButtonData(v.Name, btnData)))
+	}
+
+	btnRows = append(btnRows, tg.NewInlineKeyboardRow(tg.NewInlineKeyboardButtonData(btnTextBack, CallbackChat)))
+
+	msg := tg.NewEditMessageText(m.Chat.ID, u.BotMessageID, "Выберите чат, который нужно добавить или удалить в данный чат")
+
+	kb := tg.NewInlineKeyboardMarkup(btnRows...)
+	msg.ReplyMarkup = &kb
+
+	newMsg, err := a.bot.Send(msg)
+	if err != nil {
+		return fmt.Errorf("send response: %s", err)
+	}
+
+	u.BotMessageID = newMsg.MessageID
+	a.repo.AddChatUserState(m.Chat.ID, u)
+
+	return nil
 }

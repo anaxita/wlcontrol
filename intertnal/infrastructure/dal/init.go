@@ -58,24 +58,50 @@ func (r *Repository) AddRouter(router entity.MikrotikCreate) error {
 }
 
 func (r *Repository) ChatByID(id int64) (entity.Chat, error) {
-	var devices []entity.Mikrotik
+	var chatDevices []entity.Mikrotik
+
+	devicesChatsWL := dbr.I("devices_chats_wl").As("dcw")
+	devices := dbr.I("devices").As("d")
 
 	_, err := r.db.NewSession(nil).
-		Select("id, name, address, login, password, chat_id, wl").
-		From("devices_chats_wl").
-		Join("devices", "devices.id = devices_chats_wl.device_id").
-		Where("chat_id = ?", id).
-		GroupBy("id").
-		Load(&devices)
+		Select("d.id, d.name, d.address, d.login, d.password, dcw.chat_id, dcw.wl").
+		From(devicesChatsWL).
+		Join(devices, "d.id = dcw.device_id").
+		Where("dcw.chat_id = ?", id).
+		Load(&chatDevices)
 	if err != nil {
 		return entity.Chat{}, err
 	}
 
-	if len(devices) == 0 {
+	if len(chatDevices) == 0 {
 		return entity.Chat{}, domain.ErrNotFound
 	}
 
-	return entity.Chat{ID: devices[0].ChatID, Devices: devices}, nil
+	return entity.Chat{ID: chatDevices[0].ChatID, AddressLists: chatDevices}, nil
+}
+
+func (r *Repository) ChatDevices(id int64) ([]entity.Mikrotik, error) {
+	var chatDevices []entity.Mikrotik
+
+	devicesChatsWL := dbr.I("devices_chats_wl").As("dcw")
+	devices := dbr.I("devices").As("d")
+
+	_, err := r.db.NewSession(nil).
+		Select("d.id, d.name, d.address, d.login, d.password, dcw.chat_id, dcw.wl").
+		From(devicesChatsWL).
+		Join(devices, "d.id = dcw.device_id").
+		Where("dcw.chat_id = ?", id).
+		GroupBy("d.id").
+		Load(&chatDevices)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(chatDevices) == 0 {
+		return nil, domain.ErrNotFound
+	}
+
+	return chatDevices, nil
 }
 
 func (r *Repository) AddDevicesToChat(devices ...entity.Mikrotik) error {

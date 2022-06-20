@@ -51,21 +51,7 @@ func (a *App) handleEnterChatID(m *tg.Message, u entity.User) (err error) {
 
 	msg := tg.NewMessage(m.Chat.ID, chat.DeviceInfo())
 
-	kb := tg.NewInlineKeyboardMarkup(
-		tg.NewInlineKeyboardRow(
-			tg.NewInlineKeyboardButtonData("Добавить WL", CallbackAddChatWL),
-			tg.NewInlineKeyboardButtonData("Удалить WL", CallbackRemoveChatWL),
-		),
-		tg.NewInlineKeyboardRow(
-			tg.NewInlineKeyboardButtonData("Устройства", CallbackChatDevices),
-		),
-
-		tg.NewInlineKeyboardRow(
-			tg.NewInlineKeyboardButtonData(btnTextBack, CallbackStart),
-		),
-	)
-
-	msg.ReplyMarkup = &kb
+	msg.ReplyMarkup = &keyboardChats
 
 	newMsg, err := a.bot.Send(msg)
 	if err != nil {
@@ -80,6 +66,38 @@ func (a *App) handleEnterChatID(m *tg.Message, u entity.User) (err error) {
 		EditedChatID:  id,
 		State:         entity.UserStateEditChatSettings,
 	})
+
+	return
+}
+
+func (a *App) handleChat(cb *tg.CallbackQuery) (err error) {
+	m := cb.Message
+
+	u, err := a.repo.ChatUserState(m.Chat.ID, cb.From.ID)
+	if err != nil {
+		return fmt.Errorf("user state: %s", err)
+	}
+
+	chat, err := a.repo.ChatByID(u.EditedChatID)
+	if err != nil {
+		if !errors.Is(err, ErrNotFound) {
+			return
+		}
+
+		chat, err = a.addDefaultChat(u.EditedChatID)
+	}
+
+	msg := tg.NewEditMessageText(u.ChatID, u.BotMessageID, chat.DeviceInfo())
+
+	msg.ReplyMarkup = &keyboardChats
+
+	newMsg, err := a.bot.Send(msg)
+	if err != nil {
+		return
+	}
+
+	u.BotMessageID = newMsg.MessageID
+	a.repo.AddChatUserState(m.Chat.ID, u)
 
 	return
 }

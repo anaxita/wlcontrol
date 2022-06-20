@@ -1,6 +1,9 @@
 package domain
 
-import "wlcontrol/intertnal/entity"
+import (
+	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"wlcontrol/intertnal/entity"
+)
 
 func defaultDevices(chatID int64) []entity.Mikrotik {
 	return []entity.Mikrotik{
@@ -16,3 +19,17 @@ func defaultDevices(chatID int64) []entity.Mikrotik {
 		},
 	}
 }
+
+var keyboardChats = tg.NewInlineKeyboardMarkup(
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData("Добавить WL", CallbackAddChatWL),
+		tg.NewInlineKeyboardButtonData("Удалить WL", CallbackRemoveChatWL),
+	),
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData("Устройства", CallbackChatDevices),
+	),
+
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData(btnTextBack, CallbackStart),
+	),
+)
